@@ -6,7 +6,7 @@ class FIFOHandler:
     
     def handle_message(self, msg_id, sender_id, content, seq_num):
         if msg_id in self.seen_messages:
-            print(f"DEBUG: Ignoring duplicate message {msg_id}")
+            print(f"DEBUG: Ignoring duplicated message")
             return []
             
         self.seen_messages.add(msg_id)
@@ -23,6 +23,9 @@ class FIFOHandler:
         expected_seq = self.expected[sender_id]
         delivered = []
         
+        if expected_seq not in self.buffers[sender_id]:
+            print(f"\nDEBUG: FIFO NOT RESPECTED, message with clock {expected_seq+1} was not received")
+
         while expected_seq in self.buffers[sender_id]:
             msg_id, content = self.buffers[sender_id][expected_seq]
             delivered.append((sender_id, content))
@@ -43,7 +46,7 @@ class CausalHandler:
     
     def handle_message(self, msg_id, sender_id, received_clock, content):
         if msg_id in self.delivered or msg_id in self.buffer:
-            print(f"DEBUG: Ignoring duplicated message")
+            print(f"\nDEBUG: Ignoring duplicated message")
             return []
             
         self.buffer[msg_id] = (sender_id, content, received_clock)
@@ -74,11 +77,11 @@ class CausalHandler:
         for i in range(len(msg_clock)):
             if i == sender_id:
                 if msg_clock[i] != self.clock[i] + 1:
-                    print(f"DEBUG: Message from {sender_id} with clock {msg_clock} cannot be delivered, BUFFERED")
+                    print(f"\nDEBUG: CAUSALITY NOT RESPECTED, message with clock {msg_clock} is BUFFERED")
                     return False
             else:
                 if msg_clock[i] > self.clock[i]:
-                    print(f"DEBUG: Message received from {sender_id} with clock {msg_clock} cannot be delivered, BUFFERED")
+                    print(f"\nDEBUG: CAUSALITY NOT RESPECTED, message with clock {msg_clock} is BUFFERED")
                     return False
         print(f"DEBUG: Message from {sender_id} with clock {msg_clock} can be delivered")
         return True

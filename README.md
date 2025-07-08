@@ -126,7 +126,7 @@ NODES = [
 {
     "type": "MESSAGE",
     "mode": "private", 
-    "id": "node_id-msg_count",
+    "id": "0-0",
     "sender_id": 0,
     "target_id": 2,
     "clock": null,

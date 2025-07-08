@@ -38,8 +38,8 @@ def main():
                     print("Invalid node ID.")
             else:
                 print("Invalid input.")
-            
-            time.sleep(5)
+
+            time.sleep(5.1)
     except KeyboardInterrupt:
         my_node.stop()
 

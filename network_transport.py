@@ -12,6 +12,7 @@ class MessageTransport:
         self.socket.bind(('127.0.0.1', my_port))
         self.acks = set()
         self.msg_count = 0
+        self.private_seq = {}
         self.handler = None
         self.running = False
         self.broadcast_responses = {}
@@ -81,7 +82,7 @@ class MessageTransport:
     
     def wait_for_ack(self, msg_id, encoded, node, is_broadcast=False):
         max_retries = 2 if is_broadcast else 5
-        sleep_time = 1 if is_broadcast else 2
+        sleep_time = 1
         
         retries = 0
         while retries < max_retries:
@@ -115,7 +116,10 @@ class MessageTransport:
         }
         
         if mode == 'private':
-            packet['seq_num'] = self.msg_count - 1
+            if target_id not in self.private_seq:
+                self.private_seq[target_id] = 0
+            packet['seq_num'] = self.private_seq[target_id]
+            self.private_seq[target_id] += 1
         
         return packet
     
